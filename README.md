@@ -47,3 +47,7 @@ A simple RESTful API for managing personal journal entries. Built using **Spring
 4. Run the application using IntelliJ or mvn spring-boot:run
 5. Use Postman to interact with endpoints.
 
+## Notes
+
+- Further development is in progress such as authentication using spring security and exception handling etc.
+
