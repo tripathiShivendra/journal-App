@@ -1,4 +1,5 @@
 // This is the POJO
+
 package com.newproject.journalapp.entity;
 
 import org.springframework.data.annotation.Id;
@@ -19,6 +20,7 @@ public class JournalEntry {
     private LocalDateTime dateTime;
 
 //Getters and Setters for all the fields
+
     public LocalDateTime getDateTime() {
         return dateTime;
     }

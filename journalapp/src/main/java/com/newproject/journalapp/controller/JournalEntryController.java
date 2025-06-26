@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController
+
+@RestController // For telling Spring that this class will interact with the web and the endpoints will be created here
 @RequestMapping("/journal")
 public class JournalEntryController {
 
@@ -38,6 +39,8 @@ public class JournalEntryController {
         journalEntryService.deleteEntryById(myid);
         return "Entry deleted Successfully";
     }
+
+    //Put/Updating Logic
 
     @PutMapping("/id/{id}")
     public String updateEntryById(@PathVariable Long id,@RequestBody JournalEntry newEntry){
