@@ -42,6 +42,6 @@ public class JournalEntryService {
         return "deleted successfully";
     }
 
-    //Post Logic is in JournalEntryController Class
+    //Put Logic is in JournalEntryController Class
 
 }
