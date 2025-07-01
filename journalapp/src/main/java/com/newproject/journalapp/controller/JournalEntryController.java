@@ -1,7 +1,9 @@
 package com.newproject.journalapp.controller;
 
 import com.newproject.journalapp.entity.JournalEntry;
+import com.newproject.journalapp.entity.User;
 import com.newproject.journalapp.services.JournalEntryService;
+import com.newproject.journalapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,26 +19,29 @@ import java.util.Optional;
 public class JournalEntryController {
 
     @Autowired
-    public JournalEntryService journalEntryService;
+    private JournalEntryService journalEntryService;
+    @Autowired
+    private UserService userService;
 
-    @GetMapping
-    public ResponseEntity<?> getAll(){
-        List<JournalEntry> journalEntry= journalEntryService.getEntry();
+    @GetMapping("{username}")
+    public ResponseEntity<?> getAll(@PathVariable String username){
+        User user = userService.getUserByUsername(username).orElse(null);
+        List<JournalEntry> journalEntry= user.getJournalEntries();
         if(journalEntry.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(journalEntry,HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createEntry(@RequestBody JournalEntry myEntry){
+    @PostMapping("{username}")
+    public ResponseEntity<?> createEntry(@RequestBody JournalEntry myEntry,@PathVariable String username){
         myEntry.setDateTime(LocalDateTime.now());
-            journalEntryService.saveEntry(myEntry);
+            journalEntryService.saveEntry(myEntry,username);
         return new ResponseEntity<>("Entry Created",HttpStatus.CREATED);
     }
 
     @GetMapping("/id/{myid}")
-    public ResponseEntity<?> getJournalEntryById(@PathVariable Long myid){
+    public ResponseEntity<?> getJournalEntryById(@PathVariable String myid){
         Optional<JournalEntry> journalEntry= journalEntryService.getEntryById(myid);
         if(journalEntry.isPresent()){
             return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
@@ -44,11 +49,11 @@ public class JournalEntryController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/id/{myid}")
-    public ResponseEntity<?> deleteJournalEntryById(@PathVariable Long myid){
+    @DeleteMapping("/id/{username}/{myid}")
+    public ResponseEntity<?> deleteJournalEntryById(@PathVariable String myid,@PathVariable String username){
         Optional<JournalEntry> journalEntry= journalEntryService.getEntryById(myid);
         if(journalEntry.isPresent()) {
-            journalEntryService.deleteEntryById(myid);
+            journalEntryService.deleteEntryById(myid,username);
             return new ResponseEntity<>("Deleted Successfully", HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -56,9 +61,9 @@ public class JournalEntryController {
 
     //Put/Updating Logic
 
-    @PutMapping("/id/{id}")
-    public ResponseEntity<?> updateEntryById(@PathVariable Long id,@RequestBody JournalEntry newEntry){
-       JournalEntry old = journalEntryService.getEntryById(id).orElse(null);
+    @PutMapping("/id/{username}/{entryid}")
+    public ResponseEntity<?> updateEntryById(@PathVariable String entryid,@RequestBody JournalEntry newEntry,@PathVariable String username){
+       JournalEntry old = journalEntryService.getEntryById(entryid).orElse(null);
        if(old!=null){
            old.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : old.getTitle());
            old.setContent(newEntry.getContent() != null && !newEntry.getContent().equals("") ? newEntry.getContent() : old.getContent());
@@ -66,7 +71,7 @@ public class JournalEntryController {
        else{
            return new ResponseEntity<>("No Entry corresponding to the ID",HttpStatus.NOT_FOUND) ;
        }
-        journalEntryService.saveEntry(old);
+       journalEntryService.saveEntry(old);
         return new ResponseEntity<>("Entry updated successfully",HttpStatus.OK) ;
     }
 
