@@ -3,6 +3,8 @@ package com.newproject.journalapp.controller;
 import com.newproject.journalapp.entity.User;
 import com.newproject.journalapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,34 +17,32 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+
+
+
     @GetMapping
-    public List<User> getAllUsers(){
-        return userService.getUser();
-    }
-
-    @PostMapping
-    public String createUser(@RequestBody User newUser){
-        userService.saveUser(newUser);
-        return "User created successfully";
-    }
-
-    @GetMapping("/{username}")
-    public Optional<User> getUserByUsername(@PathVariable String username){
+    public Optional<User> getUserByUsername(){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String username= authentication.getName();
         return userService.getUserByUsername(username);
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteUserById(@PathVariable String id){
-        userService.deleteUserById(id);
+    @DeleteMapping
+    public String deleteUserById(){
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        String userName=authentication.getName();
+        userService.deleteUserByUsername(userName);
         return "User Deleted";
     }
 
-    @PutMapping("/{id}")
-    public String updateUserById(@PathVariable String id,@RequestBody User updatedUser){
-        User old= userService.getUserById(id).orElse(null);
+    @PutMapping
+    public String updateUserById(@RequestBody User updatedUser){
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
+        User old=userService.getUserByUsername(userName).orElse(null);
         if(old!=null){
-            old.setUsername( updatedUser.getUsername()!=""? updatedUser.getUsername():old.getUsername());
-            old.setPassword( updatedUser.getPassword()!=""? updatedUser.getPassword():old.getPassword());
+            old.setUsername( !updatedUser.getUsername().isEmpty()? updatedUser.getUsername():old.getUsername());
+            old.setPassword( !updatedUser.getPassword().isEmpty()? updatedUser.getPassword():old.getPassword());
             userService.saveUser(old);
             return "User Updated";
         }

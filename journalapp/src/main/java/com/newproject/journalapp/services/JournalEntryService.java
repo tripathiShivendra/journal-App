@@ -5,6 +5,7 @@ import com.newproject.journalapp.entity.User;
 import com.newproject.journalapp.repository.JournalEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
 import java.util.List;
@@ -22,6 +23,7 @@ public class JournalEntryService {
     //Business logics for Get,Post,Delete,Put
 
     //Post Logic
+    @Transactional
     public void saveEntry(JournalEntry myEntry, String username) {
         User user = userService.getUserByUsername(username).orElse(null);
             JournalEntry journalEntry = journalEntryRepository.save(myEntry);
